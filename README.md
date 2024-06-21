@@ -1,6 +1,6 @@
 <h1 align="center">
   
- Template REACT
+  react-blog-spa
   
 </h1>
 
@@ -26,9 +26,20 @@
   <a href="#used-technologies">Used technologies</a> 
 </p>
 
-![Blog Image](src/assets/blog.png)
+<!-- ![Blog Image](src/assets/blog.png) -->
 
 ## Description
+
+Creiamo il front-office del nostro Blog
+Partiamo installando react router npm install react-router-dom
+Definiamo almeno tre pagine:
+Home Page
+Blog con la lista degli articoli
+Post pagina singola dell’articolo
+
+### BONUS
+
+Implementare la funzionalità di cancellazione
 
 ## How To Use
 
