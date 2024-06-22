@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 
 const SinglePost = () => {
   const { id } = useParams();
+  console.log(id);
+
   return (
     <>
-      <h2>prodotto di ID {id}</h2>
+      <h2>Post di slug: {id}</h2>
     </>
   );
 };
