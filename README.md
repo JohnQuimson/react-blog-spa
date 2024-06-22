@@ -31,11 +31,16 @@
 ## Description
 
 Creiamo il front-office del nostro Blog
-Partiamo installando react router npm install react-router-dom
+
+Partiamo installando react router:
+
+**npm install react-router-dom**
+
 Definiamo almeno tre pagine:
-Home Page
-Blog con la lista degli articoli
-Post pagina singola dell’articolo
+
+- Home Page
+- Blog con la lista degli articoli
+- Post pagina singola dell’articolo
 
 ### BONUS
 
