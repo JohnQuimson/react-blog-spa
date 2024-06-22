@@ -1,168 +1,158 @@
-import React, { useState } from 'react';
-import { MdDeleteForever } from 'react-icons/md';
-import { FaRegEdit, FaSave } from 'react-icons/fa';
-import ArticleCard from './ArticleCard';
+import { useState } from 'react';
+import axios from 'axios';
+const apiUrl = import.meta.env.VITE_BASE_API_URL;
 
-const Form = () => {
-  const listTags = [
-    'Notizie',
-    'Attualità',
-    'Tecnologia',
-    'Economia',
-    'Politica',
-    'Ambiente',
-    'Cultura',
-    'Salute',
-  ];
-
-  const listCategories = [
-    'Tecnologia',
-    'Sport',
-    'Salute',
-    'Cucina ',
-    'Finanza ',
-  ];
-
-  const [articles, setArticles] = useState([]);
-
+export default function Form({ tags, categories, onCreate }) {
   const initialData = {
     title: '',
+    img: '',
     content: '',
-    image: '',
-    category: '',
+    categoryId: '',
     tags: [],
-    status: true,
+    published: true,
   };
 
   const [formData, setFormData] = useState(initialData);
 
-  const [editIndex, setEditIndex] = useState(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleField = (title, value) => {
-    setFormData((curr) => ({
-      ...curr,
-      [title]: value,
+    try {
+      console.log('formdata', formData);
+
+      const payload = {
+        ...formData,
+        categoryId: parseInt(formData.categoryId),
+        tags: formData.tags.map((tag) => parseInt(tag)),
+      };
+
+      const res = await axios.post(`${apiUrl}/posts`, payload);
+
+      if (res.status < 400) {
+        onCreate();
+        setFormData(initialData);
+      }
+    } catch (error) {
+      console.error('Errore durante la creazione del post:', error);
+    }
+  };
+
+  const handleFormField = (objectKey, value) => {
+    setFormData((currObject) => ({
+      ...currObject,
+      [objectKey]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    setArticles((curr) => [...curr, formData]);
-    setFormData(initialData);
+  const renderField = (objKey, value) => {
+    if (typeof value === 'boolean') {
+      return (
+        <label key={`formElement${objKey}`} className="input-css">
+          {objKey}
+          <input
+            name={objKey}
+            type="checkbox"
+            checked={formData[objKey]}
+            onChange={(e) => handleFormField(objKey, e.target.checked)}
+          />
+        </label>
+      );
+    } else if (Array.isArray(value)) {
+      if (objKey === 'tags') {
+        return (
+          <div key={`formElement${objKey}`}>
+            <h5>Tags:</h5>
+            <ul>
+              {tags.length > 0 ? (
+                tags.map(({ id, name }, index) => (
+                  <li key={`item${index}`}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={formData.tags.includes(id)}
+                        onChange={() => {
+                          const curr = formData.tags;
+                          const newTags = curr.includes(id)
+                            ? curr.filter((e) => e !== id)
+                            : [...curr, parseInt(id)];
+                          handleFormField('tags', newTags);
+                        }}
+                      />
+                      {name}
+                    </label>
+                  </li>
+                ))
+              ) : (
+                <li>No tags available</li>
+              )}
+            </ul>
+          </div>
+        );
+      }
+    } else if (objKey === 'categoryId') {
+      return (
+        <div key={`formElement${objKey}`}>
+          <h5>Categoria:</h5>
+          <select
+            className="input-css"
+            value={formData.categoryId}
+            onChange={(e) => handleFormField(objKey, parseInt(e.target.value))}
+          >
+            <option value="" disabled>
+              Seleziona una categoria
+            </option>
+            {categories.map(({ id, name }) => (
+              <option key={`category${id}`} value={id}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    } else if (objKey === 'img') {
+      return (
+        <div
+          key={`formElement${objKey}`}
+          className="input-css container-input-img"
+        >
+          <label>
+            {objKey}
+            <input
+              className="input-img"
+              type="file"
+              onChange={(e) => handleFormField(objKey, e.target.files[0])}
+            />
+          </label>
+        </div>
+      );
+    } else {
+      return (
+        <input
+          key={`formElement${objKey}`}
+          name={objKey}
+          type={typeof value === 'number' ? 'number' : 'text'}
+          placeholder={objKey}
+          className="input-css"
+          value={formData[objKey]}
+          onChange={(e) => handleFormField(objKey, e.target.value)}
+        />
+      );
+    }
   };
 
   return (
     <>
-      <section id="form-section">
-        <form onSubmit={handleSubmit}>
-          <h2>Form</h2>
-          {Object.keys(initialData).map((title, index) => {
-            const value = initialData[title];
-            switch (typeof value) {
-              case 'boolean':
-                return (
-                  <label key={`formElement${index}`}>
-                    Visibile
-                    <input
-                      name={title}
-                      type="checkbox"
-                      checked={formData[title]}
-                      onChange={(e) => handleField(title, e.target.checked)}
-                    />
-                  </label>
-                );
-
-              case 'object':
-                return (
-                  <div key={`formElement${index}`}>
-                    <strong>Tags:</strong>
-                    <ul>
-                      {listTags.map((title, index) => (
-                        <li key={`tags${index}`}>
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={formData.tags.includes(title)}
-                              onChange={() => {
-                                const curr = formData.tags;
-                                const newTags = curr.includes(title)
-                                  ? curr.filter((el) => el !== title)
-                                  : [...curr, title];
-                                handleField('tags', newTags);
-                              }}
-                            />
-                            {title}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-
-              default:
-                if (title === 'category') {
-                  return (
-                    <select
-                      key={`formElement${index}`}
-                      name={title}
-                      value={formData[title]}
-                      onChange={(e) => handleField(title, e.target.value)}
-                    >
-                      <option value="">Seleziona categoria</option>
-                      {listCategories.map((c, index) => (
-                        <option key={index} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  );
-                }
-
-                return (
-                  <input
-                    key={`formElement${index}`}
-                    name={title}
-                    type={typeof value === 'number' ? 'number' : 'text'}
-                    placeholder={title}
-                    value={formData[title]}
-                    onChange={(e) =>
-                      handleField(
-                        title,
-                        typeof value === 'number'
-                          ? Number(e.target.value)
-                          : e.target.value
-                      )
-                    }
-                  />
-                );
-            }
-          })}
-
-          <button>invia</button>
+      <div className="form-section">
+        <form onSubmit={handleSubmit} className="form-container">
+          <h2>Aggiungi un nuovo post</h2>
+          <div className="form-fields">
+            {Object.keys(initialData).map((objKey) =>
+              renderField(objKey, initialData[objKey])
+            )}
+          </div>
+          <button className="button-css">Aggiungi</button>
         </form>
-
-        <div className="articles">
-          <h2 className="articlesTitle">Articoli</h2>
-          {articles.length > 0 || (
-            <h3 className="subtitle">Al momento non ci sono articoli</h3>
-          )}
-
-          {articles.map((a, index) => (
-            <ArticleCard
-              key={`article${index}`}
-              title={a.title}
-              content={a.content}
-              imageUrl={a.image}
-              category={a.category}
-              tags={a.tags}
-              status={a.status}
-            />
-          ))}
-        </div>
-      </section>
+      </div>
     </>
   );
-};
-
-export default Form;
+}

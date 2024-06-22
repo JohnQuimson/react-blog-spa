@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Form from './Form';
-import ElencoArticles from './ElencoArticles';
+import ElencoArticles from './ElencoPost';
 
 const Main = () => {
   return (
