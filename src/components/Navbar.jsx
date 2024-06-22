@@ -10,10 +10,6 @@ const urlPages = [
     label: 'Post',
     href: '/posts',
   },
-  {
-    label: 'Contatti',
-    href: '/contacts',
-  },
 ];
 
 const Navbar = () => {
